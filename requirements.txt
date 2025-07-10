@@ -1,16 +1,31 @@
-elevenlabs==1.7.0
+# Core web framework
 Flask==2.2.3
-Flask_SocketIO==5.3.3
-keyboard==0.13.5
-mutagen==1.46.0
-obs_websocket_py==1.0
-openai==1.44.0
+Flask-SocketIO==5.3.3
+
+# Audio processing and TTS
+TTS>=3.0.0  # Coqui TTS for text-to-speech
+soundfile==0.12.1
 PyAudio==0.2.14
 pydub==0.25.1
 pygame==2.3.0
-pygame_ce==2.3.0
-rich==13.8.0
-soundfile==0.12.1
-tiktoken==0.7.0
-torch==2.3.0+cu118
+
+# AI and ML
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
 transformers==4.40.2
+openai==1.44.0
+tiktoken==0.7.0
+
+# Utilities
+rich==13.8.0
+keyboard==0.13.5
+mutagen==1.46.0
+requests>=2.0.0
+
+# OBS integration (optional)
+obs-websocket-py==1.0
+
+# Additional dependencies
+# Note: Install torch with CUDA support for better performance:
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118

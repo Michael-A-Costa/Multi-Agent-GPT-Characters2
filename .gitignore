@@ -1,0 +1,35 @@
+# Ignore Python virtual environments
+bb/
+venv/
+.env/
+*.env
+
+# Ignore Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore audio files and folders
+audio_msg/
+audio_in/
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+*.aac
+*.wma
+
+# Ignore backup history files and folder
+backup_history/
+backup_history_*.txt
+
+# Ignore generated sample files
+samples/vctk-vits-*.wav
+
+# Ignore other common audio/media files
+*.mp4
+*.avi
+*.mov
+*.mkv

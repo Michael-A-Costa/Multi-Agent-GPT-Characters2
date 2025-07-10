@@ -52,10 +52,24 @@ class AudioManager:
                 converted = True
                 pygame.mixer.music.load(converted_wav)
                 pygame.mixer.music.play()
+            # Wait for the music to finish playing, allow skip with F9
+            while pygame.mixer.music.get_busy():
+                if keyboard.is_pressed('f9'):
+                    print("[yellow]Audio skip requested (F9). Stopping music.")
+                    pygame.mixer.music.stop()
+                    return
+                time.sleep(0.05)
         else:
             # Pygame Sound lets you play multiple sounds simultaneously
-            pygame_sound = pygame.mixer.Sound(file_path) 
-            pygame_sound.play()
+            pygame_sound = pygame.mixer.Sound(file_path)
+            channel = pygame_sound.play()
+            # Wait for the sound to finish playing, allow skip with F9
+            while channel.get_busy():
+                if keyboard.is_pressed('f9'):
+                    print("[yellow]Audio skip requested (F9). Stopping sound.")
+                    channel.stop()
+                    return
+                time.sleep(0.05)
 
         if sleep_during_playback:
             # Sleep until file is done playing
@@ -73,6 +87,7 @@ class AudioManager:
                         os.remove(converted_wav) # Remove the converted wav if it was created
                 except PermissionError:
                     print(f"Couldn't remove {file_path} because it is being used by another process.")
+        print(f"[green]Finished audio playback: {file_path}[/green]")
 
     async def play_audio_async(self, file_path):
         """
@@ -128,13 +143,13 @@ class AudioManager:
             self.audio_frames.append(data)
         print("[red]DONE RECORDING!")
 
-    def record_audio(self, end_recording_key='=', audio_device=None):
+    def record_audio(self, end_recording_key='=', audio_device=None, channels=1):
         # Records audio from an audio input device.
         # Example device names are "Line In (Realtek(R) Audio)", "Sample (TC-Helicon GoXLR)", or just leave empty to use default mic
         # For some reason this doesn't work on the Broadcast GoXLR Mix, the other 3 GoXLR audio inputs all work fine.
         # Both Azure Speech-to-Text AND this script have issues listening to Broadcast Stream Mix, so just ignore it.
         audio = pyaudio.PyAudio()
-        
+        self.channels = channels  # Set the number of channels for this recording
         if audio_device is None:
             # If no audio_device is provided, use the default mic
             audio_stream = audio.open(format=self.audio_format, channels=self.channels, rate=self.rate, input=True, frames_per_buffer=self.chunk)
@@ -158,9 +173,7 @@ class AudioManager:
                             continue
             if device_index is None:
                 raise ValueError(f"Device '{audio_device}' not found")
-            if self.rate is None:
-                raise ValueError(f"No supported sample rate found for device '{audio_device}'")
-            audio_stream = audio.open(format=self.audio_format, channels=self.channels, rate=self.rate, input=True, input_device_index=device_index, frames_per_buffer=self.chunk)
+            audio_stream = audio.open(format=self.audio_format, channels=self.channels, rate=self.rate, input=True, frames_per_buffer=self.chunk, input_device_index=device_index)
                     
         # Start recording an a second thread
         self.is_recording = True
@@ -175,7 +188,9 @@ class AudioManager:
         self.is_recording = False
         time.sleep(0.1) # Just for safety, no clue if this is needed
 
-        filename = f"mic_recording_{int(time.time())}.wav"
+        # Create audio_in directory if it doesn't exist
+        os.makedirs("audio_in", exist_ok=True)
+        filename = f"audio_in/mic_recording_{int(time.time())}.wav"
         wave_file = wave.open(filename, 'wb')
         wave_file.setnchannels(self.channels)
         wave_file.setsampwidth(audio.get_sample_size(self.audio_format))
@@ -189,4 +204,4 @@ class AudioManager:
         audio.terminate()
 
         return filename
-        
+
